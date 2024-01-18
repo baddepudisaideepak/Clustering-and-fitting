@@ -101,6 +101,7 @@ for ic in range(2, 11):
     score = one_silhoutte(df_norm, ic)
     print(f"The silhouette score for {ic: 3d} is {score: 7.4f}")   # allow for minus signs
 
+
 # set up the clusterer with the number of expected clusters
 kmeans = cluster.KMeans(n_clusters=2, n_init=20)
 
@@ -132,4 +133,46 @@ plt.xlabel("Mortality")
 plt.ylabel("Poverty")
 plt.title("Mortality vs Poverty")
 plt.savefig("Mortality_Povery.png", dpi =300)
+plt.show()
+
+world = world.reset_index()
+world = world.rename(columns= {"index":"years"})
+param, covar = opt.curve_fit(exponential, world["years"] ,world["Mortality"], p0=(100, -0.03))
+print(*param)
+
+imlib.reload(err)
+
+# forecast for one year
+forecast = exponential(2030, *param)
+sigma = err.error_prop(2030, exponential, param, covar)
+
+print(f"{forecast: 6.3e} +/- {sigma: 6.3e}")
+
+plt.figure()
+plt.plot(world["years"], world["Mortality"],'--', label="world")
+plt.xlabel("year")
+plt.ylabel("Mortality rate(out of 1000)")
+plt.legend()
+plt.title("World's Mortality rate")
+plt.savefig("Mortality.png",dpi=300)
+plt.show()
+
+
+# create array for forecasting
+year = np.linspace(1985, 2025, 100)
+forecast = exponential(year, *param)
+sigma = err.error_prop(year, exponential, param, covar)
+up = forecast + sigma
+low = forecast - sigma
+
+plt.figure()
+plt.plot(world["years"], world["Mortality"],'--', label="world")
+plt.plot(year, forecast, label="forecast")
+
+plt.fill_between(year, low, up, color="yellow", alpha=0.7)
+plt.xlabel("year")
+plt.ylabel("Mortality rate(/1000)")
+plt.legend()
+plt.title("World's Mortality rate forecast ")
+plt.savefig("Mortality rate fitting.png",dpi =300)
 plt.show()
