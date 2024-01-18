@@ -10,8 +10,12 @@ import importlib as imlib
 import errors as err
 
 
-""" Calculates silhoutte
-     score for n clusters """
+"""
+    This function calculates the silhouette score for a specified number of clusters.
+    :param xy: Array of data points.
+    :param n: Number of clusters.
+    :return: Silhouette score.
+    """
 
 def one_silhoutte(xy, n):
 
@@ -29,9 +33,15 @@ def one_silhoutte(xy, n):
     return score
 
 
-"""Calculates exponential function
-    with scale factor n0
-    and growth rate g.  """
+"""
+    Exponential growth model function.
+    :param t: Time variable.
+    :param n0: Initial scale factor.
+    :param g: Growth rate.
+    :return: Calculated exponential function value.
+    """
+
+
 def exponential(t, n0, g):
 
     # makes it easier to get a guess for initial parameters
@@ -44,13 +54,11 @@ def exponential(t, n0, g):
 
 cm = matplotlib.colormaps["Paired"]
 
+# Load and preprocess data
 mortalityRate = pd.read_excel("Mortalityrate.xlsx")
 povertyRate = pd.read_excel("Poverty.xlsx")
-
-
 mortalityRate.set_index(mortalityRate["Country Name"], inplace= True)
 mortalityRate.drop(['Series Name', 'Series Code',"Country Name",'Country Code'],axis=1,inplace = True)
-
 povertyRate.set_index(povertyRate["Country Name"], inplace= True)
 povertyRate.drop(['Series Name', 'Series Code',"Country Name",'Country Code'],axis=1,inplace = True)
 
