@@ -42,6 +42,8 @@ def exponential(t, n0, g):
     return f
 
 
+cm = matplotlib.colormaps["Paired"]
+
 mortalityRate = pd.read_excel("Mortalityrate.xlsx")
 povertyRate = pd.read_excel("Poverty.xlsx")
 
@@ -62,13 +64,39 @@ povertyRate.set_index(years,inplace = True)
 
 print(mortalityRate.head(5))
 print(povertyRate.head(5))
+
+
 worldMortality = mortalityRate["World"]
 worldPoverty = povertyRate["World"]
 
 worldMortality.name = "Mortality"
 worldPoverty.name = "Poverty"
 
+print(worldMortality)
+print(worldPoverty)
+
+
 world = pd.concat([worldMortality, worldPoverty], axis=1)
 world = world.head(-3)
 
 print(world.head(3))
+
+
+
+
+# create a scaler object
+scaler = pp.RobustScaler()
+
+# extract columns
+df_clust = world[["Mortality", "Poverty"]]
+# and set up the scaler
+scaler.fit(df_clust)
+
+# apply the scaling
+df_norm = scaler.transform(df_clust)
+
+
+# calculate silhouette score for 2 to 10 clusters
+for ic in range(2, 11):
+    score = one_silhoutte(df_norm, ic)
+    print(f"The silhouette score for {ic: 3d} is {score: 7.4f}")   # allow for minus signs
