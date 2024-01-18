@@ -62,8 +62,8 @@ mortalityRate.set_index(years,inplace = True)
 povertyRate = povertyRate.T
 povertyRate.set_index(years,inplace = True)
 
-print(mortalityRate.head(5))
-print(povertyRate.head(5))
+print("\nmortalityRate:",mortalityRate.head(5))
+print("\npovertyRate:",povertyRate.head(5))
 
 
 worldMortality = mortalityRate["World"]
@@ -72,14 +72,14 @@ worldPoverty = povertyRate["World"]
 worldMortality.name = "Mortality"
 worldPoverty.name = "Poverty"
 
-print(worldMortality)
-print(worldPoverty)
+print("\n worldMortality:",worldMortality)
+print("\n worldPoverty:",worldPoverty)
 
 
 world = pd.concat([worldMortality, worldPoverty], axis=1)
 world = world.head(-3)
 
-print(world.head(3))
+print("\n",world.head(3))
 
 
 
@@ -138,7 +138,9 @@ plt.show()
 world = world.reset_index()
 world = world.rename(columns= {"index":"years"})
 param, covar = opt.curve_fit(exponential, world["years"] ,world["Mortality"], p0=(100, -0.03))
-print(*param)
+print("Mortality rate:-")
+print('\nparam value')
+print('param value',*param)
 
 imlib.reload(err)
 
@@ -146,6 +148,7 @@ imlib.reload(err)
 forecast = exponential(2030, *param)
 sigma = err.error_prop(2030, exponential, param, covar)
 
+print("\nforecast and sigma values ")
 print(f"{forecast: 6.3e} +/- {sigma: 6.3e}")
 
 plt.figure()
@@ -175,4 +178,45 @@ plt.ylabel("Mortality rate(/1000)")
 plt.legend()
 plt.title("World's Mortality rate forecast ")
 plt.savefig("Mortality rate fitting.png",dpi =300)
+plt.show()
+
+param, covar = opt.curve_fit(exponential, world["years"] ,world["Poverty"], p0=(100, -0.03))
+
+print("Poverty rate:-")
+print('\nparam value')
+print(*param)
+
+# forecast for one year
+forecast = exponential(2030, *param)
+sigma = err.error_prop(2030, exponential, param, covar)
+print("\nforecast and sigma values ")
+print(f"{forecast: 6.3e} +/- {sigma: 6.3e}")
+
+
+plt.figure()
+plt.plot(world["years"], world["Poverty"],'--', label="world")
+plt.xlabel("year")
+plt.ylabel("Poverty rate")
+plt.legend()
+plt.title("World's Poverty rate")
+plt.savefig("Poverty.png",dpi=300)
+plt.show()
+
+# create array for forecasting
+year = np.linspace(1985, 2025, 100)
+forecast = exponential(year, *param)
+sigma = err.error_prop(year, exponential, param, covar)
+up = forecast + sigma
+low = forecast - sigma
+
+plt.figure()
+plt.plot(world["years"], world["Poverty"],'--', label="world")
+plt.plot(year, forecast, label="forecast")
+
+plt.fill_between(year, low, up, color="yellow", alpha=0.7)
+plt.xlabel("year")
+plt.ylabel("Poverty rate")
+plt.legend()
+plt.title("World's Poverty rate forecast ")
+plt.savefig("Poverty rate fitting.png",dpi =300)
 plt.show()
