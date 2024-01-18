@@ -54,6 +54,7 @@ def exponential(t, n0, g):
 
 cm = matplotlib.colormaps["Paired"]
 
+
 # Load and preprocess data
 mortalityRate = pd.read_excel("Mortalityrate.xlsx")
 povertyRate = pd.read_excel("Poverty.xlsx")
@@ -62,9 +63,8 @@ mortalityRate.drop(['Series Name', 'Series Code',"Country Name",'Country Code'],
 povertyRate.set_index(povertyRate["Country Name"], inplace= True)
 povertyRate.drop(['Series Name', 'Series Code',"Country Name",'Country Code'],axis=1,inplace = True)
 
+# Transform and set the years as index
 years = np.linspace(1990,2022,33).astype(int)
-
-
 mortalityRate = mortalityRate.T
 mortalityRate.set_index(years,inplace = True)
 povertyRate = povertyRate.T
@@ -90,59 +90,42 @@ world = world.head(-3)
 print("\n",world.head(3))
 
 
-
-
-# create a scaler object
+# Normalization and Clustering
 scaler = pp.RobustScaler()
-
-# extract columns
 df_clust = world[["Mortality", "Poverty"]]
-# and set up the scaler
 scaler.fit(df_clust)
-
-# apply the scaling
 df_norm = scaler.transform(df_clust)
 
 
-# calculate silhouette score for 2 to 10 clusters
+
+# Silhouette score calculation for cluster numbers 2 to 10
 for ic in range(2, 11):
     score = one_silhoutte(df_norm, ic)
     print(f"The silhouette score for {ic: 3d} is {score: 7.4f}")   # allow for minus signs
 
 
-# set up the clusterer with the number of expected clusters
+
+# Applying K-Means clustering and visualizing results
 kmeans = cluster.KMeans(n_clusters=2, n_init=20)
-
-# Fit the data, results are stored in the kmeans object
-kmeans.fit(df_norm)     # fit done on x,y pairs
-
-# extract cluster labels
+kmeans.fit(df_norm)
 labels = kmeans.labels_
-
-# extract the estimated cluster centres and convert to original scales
 cen = kmeans.cluster_centers_
 cen = scaler.inverse_transform(cen)
 xkmeans = cen[:, 0]
 ykmeans = cen[:, 1]
-
-# extract x and y values of data points
 x = world["Mortality"]
 y = world["Poverty"]
-
 plt.figure(figsize=(8.0, 8.0))
-
-# plot data with kmeans cluster number
 plt.scatter(x, y, 10, labels, marker="o", cmap=cm)
-
-# show cluster centres
 plt.scatter(xkmeans, ykmeans, 45, "k", marker="d")
-
 plt.xlabel("Mortality")
 plt.ylabel("Poverty")
 plt.title("Mortality vs Poverty")
 plt.savefig("Mortality_Povery.png", dpi =300)
 plt.show()
 
+
+# Curve fitting and forecasting
 world = world.reset_index()
 world = world.rename(columns= {"index":"years"})
 param, covar = opt.curve_fit(exponential, world["years"] ,world["Mortality"], p0=(100, -0.03))
@@ -155,10 +138,10 @@ imlib.reload(err)
 # forecast for one year
 forecast = exponential(2030, *param)
 sigma = err.error_prop(2030, exponential, param, covar)
-
 print("\nforecast and sigma values ")
 print(f"{forecast: 6.3e} +/- {sigma: 6.3e}")
 
+#plotting mortality rate
 plt.figure()
 plt.plot(world["years"], world["Mortality"],'--', label="world")
 plt.xlabel("year")
@@ -176,10 +159,11 @@ sigma = err.error_prop(year, exponential, param, covar)
 up = forecast + sigma
 low = forecast - sigma
 
+
+# Plotting extended forecast with confidence intervals
 plt.figure()
 plt.plot(world["years"], world["Mortality"],'--', label="world")
 plt.plot(year, forecast, label="forecast")
-
 plt.fill_between(year, low, up, color="yellow", alpha=0.7)
 plt.xlabel("year")
 plt.ylabel("Mortality rate(/1000)")
@@ -200,7 +184,7 @@ sigma = err.error_prop(2030, exponential, param, covar)
 print("\nforecast and sigma values ")
 print(f"{forecast: 6.3e} +/- {sigma: 6.3e}")
 
-
+#plotting poverty rate
 plt.figure()
 plt.plot(world["years"], world["Poverty"],'--', label="world")
 plt.xlabel("year")
@@ -217,10 +201,11 @@ sigma = err.error_prop(year, exponential, param, covar)
 up = forecast + sigma
 low = forecast - sigma
 
+
+# Plotting extended forecast with confidence intervals
 plt.figure()
 plt.plot(world["years"], world["Poverty"],'--', label="world")
 plt.plot(year, forecast, label="forecast")
-
 plt.fill_between(year, low, up, color="yellow", alpha=0.7)
 plt.xlabel("year")
 plt.ylabel("Poverty rate")
