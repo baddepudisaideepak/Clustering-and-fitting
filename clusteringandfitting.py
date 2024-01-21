@@ -130,7 +130,7 @@ plt.scatter(xkmeans, ykmeans, 45, "k", marker="d")
 plt.xlabel("Mortality")
 plt.ylabel("Poverty")
 plt.title("Mortality vs Poverty")
-plt.savefig("Mortality_Povery.png", dpi=300)
+plt.savefig("Mortality_Poverty.png", dpi=300)
 plt.show()
 
 
