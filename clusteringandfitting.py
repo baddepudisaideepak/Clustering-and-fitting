@@ -57,6 +57,9 @@ cm = matplotlib.colormaps["Paired"]
 
 
 # Load and preprocess data
+""" reading and loading data
+    using pandas
+"""
 mortalityRate = pd.read_excel("Mortalityrate.xlsx")
 povertyRate = pd.read_excel("Poverty.xlsx")
 mortalityRate.set_index(mortalityRate["Country Name"], inplace=True)
