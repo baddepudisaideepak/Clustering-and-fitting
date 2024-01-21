@@ -76,7 +76,7 @@ povertyRate.drop(['Series Name', 'Series Code', "Country Name",
 # Transform and set the years as index
 years = np.linspace(1990, 2022, 33).astype(int)
 
-# Transposing data and setting index
+# Transposing data and setting indexe
 mortalityRate = mortalityRate.T
 povertyRate = povertyRate.T
 mortalityRate.set_index(years, inplace=True)
